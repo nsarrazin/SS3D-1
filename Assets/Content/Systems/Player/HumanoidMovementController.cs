@@ -19,6 +19,7 @@ namespace SS3D.Content.Systems.Player
 
         // The base speed for the character when walking. To disable walkSpeed, set it to runSpeed
         [SyncVar] public float walkSpeed = 2f;
+        [SyncVar] public float rotationSpeed = 25f;
 
         private Animator characterAnimator;
         private CharacterController characterController;
@@ -30,6 +31,7 @@ namespace SS3D.Content.Systems.Player
         public Vector3 absoluteMovement = new Vector3();
 
         private bool isWalking = false;
+        private bool isAiming = false;
         //Required to detect if player is typing and stop accepting movement input
         private ChatRegister chatRegister;
 
@@ -43,7 +45,7 @@ namespace SS3D.Content.Systems.Player
             characterController = GetComponent<CharacterController>();
             characterAnimator = GetComponent<Animator>();
             chatRegister = GetComponent<ChatRegister>();
-            camera = CameraManager.singleton.playerCamera; 
+            camera = CameraManager.singleton.playerCamera;
         }
 
         void Update()
@@ -59,7 +61,16 @@ namespace SS3D.Content.Systems.Player
             {
                 isWalking = !isWalking;
             }
+            // hold right-click for aiming
+            if (Input.GetMouseButtonDown(1) && Input.GetButton("Examine"))
+            {
+                isAiming = true;
+            }
 
+            if (Input.GetMouseButtonUp(1))
+            {
+                isAiming = false;
+            }
             // TODO: Implement gravity and grabbing
             // Calculate next movement
             // The vector is not normalized to allow for the input having potential rise and fall times
@@ -76,7 +87,7 @@ namespace SS3D.Content.Systems.Player
             {
                 intendedMovement = new Vector2(x, y).normalized * (isWalking ? walkSpeed : runSpeed);
             }
-            
+
             currentMovement = Vector2.MoveTowards(currentMovement, intendedMovement, Time.deltaTime * (Mathf.Pow(ACCELERATION / 5f, 3) / 5));
             var movement = Vector3.zero;
 
@@ -90,11 +101,14 @@ namespace SS3D.Content.Systems.Player
 
                 if (intendedMovement != Vector2.zero)
                 {
-                   
+
                     // Move. Whenever we move we also readjust the player's direction to the direction they are running in.
                     characterController.Move((absoluteMovement + Physics.gravity * Time.deltaTime) * (Time.deltaTime / 3.5f));
 
-                    transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(absoluteMovement), Time.deltaTime * 10);
+                    if (!isAiming)
+                    {
+                        transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(absoluteMovement), Time.deltaTime * 10);
+                    }
                 }
                 if (intendedMovement == Vector2.zero)
                 {
@@ -104,6 +118,24 @@ namespace SS3D.Content.Systems.Player
                 movement = absoluteMovement * Time.deltaTime;
             }
 
+            // aim 
+
+            if (isAiming)
+            {
+                Ray cameraRay = camera.ScreenPointToRay(Input.mousePosition);
+                Plane groundPlane = new Plane(Vector3.up, Vector3.zero);
+                float rayLength;
+
+                if (groundPlane.Raycast(cameraRay, out rayLength))
+                {
+                    Vector3 pointToLook = cameraRay.GetPoint(rayLength);
+                    Debug.DrawLine(transform.position, pointToLook, Color.cyan);
+                    Vector3 deltaLook = pointToLook - transform.position;
+                    deltaLook.y = 0.0f;
+                    Quaternion lookOnLook = Quaternion.LookRotation(deltaLook);
+                    transform.rotation = Quaternion.Slerp(transform.rotation, lookOnLook, rotationSpeed * Time.deltaTime);
+                }
+            }
             characterController.Move(movement);
 
             // animation Speed is a proportion of maximum runSpeed, and we smoothly transitions the speed with the Lerp
@@ -119,7 +151,7 @@ namespace SS3D.Content.Systems.Player
 
         private void ForceHeightLevel()
         {
-                transform.position = new Vector3(transform.position.x, heightOffGround, transform.position.z);
+            transform.position = new Vector3(transform.position.x, heightOffGround, transform.position.z);
         }
 
         private void LateUpdate()
@@ -153,5 +185,5 @@ namespace SS3D.Content.Systems.Player
             //characterAnimator.SetBool("Floating", false); // Note: Player can be floating and still move
         }
     }
-    
+
 }

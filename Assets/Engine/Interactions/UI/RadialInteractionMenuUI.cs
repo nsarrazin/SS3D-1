@@ -15,7 +15,7 @@ namespace SS3D.Engine.Interactions.UI
         public float menuScale = 1;
 
         public Animator menuAnimator;
-        
+
         public RectTransform indicator;
         public RectTransform selectedPetal;
 
@@ -25,10 +25,10 @@ namespace SS3D.Engine.Interactions.UI
 
         public TextMeshProUGUI objectName;
         public TextMeshProUGUI interactionName;
-		public TextMeshProUGUI interactionNameAltPosition;
+        public TextMeshProUGUI interactionNameAltPosition;
 
         private Camera camera;
-        
+
         [HideInInspector]
         public float mouseAngle;
         public float buttonAngle = 22.5f;
@@ -81,7 +81,7 @@ namespace SS3D.Engine.Interactions.UI
         private void Start()
         {
             camera = CameraManager.singleton.playerCamera;
-            
+
             petalsManager = GetComponent<PetalsManager>();
             petalsManager.contextMenu = this;
             if (contextMenuManagerInstance != null)
@@ -106,11 +106,11 @@ namespace SS3D.Engine.Interactions.UI
 
             if (selectedPetal != null)
                 indicator.eulerAngles = new Vector3(0, 0, Mathf.LerpAngle(currentAngle, selectedPetal.eulerAngles.z, Time.deltaTime * 15));
-            
+
             bool hasSelfAsParent = false;
             obj = EventSystem.current?.currentSelectedGameObject;
 
-            if (Input.GetButtonDown("Secondary Click"))
+            if (Input.GetButtonDown("Secondary Click") && !Input.GetButton("Examine"))
             {
                 // Check for self as parent of click
                 while (obj != null)
@@ -199,14 +199,15 @@ namespace SS3D.Engine.Interactions.UI
             {
                 petalsManager.SetFolder(spawnFolder, true);
             }
-			
-			// Set location of text display to above the RadialInteractionMenuIU if in bottom half of screen
-			if (screenPos.y * 2 < Screen.height){
-				interactionName = interactionNameAltPosition;
-			}
-			
+
+            // Set location of text display to above the RadialInteractionMenuIU if in bottom half of screen
+            if (screenPos.y * 2 < Screen.height)
+            {
+                interactionName = interactionNameAltPosition;
+            }
+
             menuAnimator.SetBool("Visible", true);
-			
+
             return (true);
         }
 
