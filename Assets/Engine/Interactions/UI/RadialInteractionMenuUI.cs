@@ -110,7 +110,7 @@ namespace SS3D.Engine.Interactions.UI
             bool hasSelfAsParent = false;
             obj = EventSystem.current?.currentSelectedGameObject;
 
-            if (Input.GetButtonDown("Secondary Click") && !Input.GetButton("Examine"))
+            if (Input.GetButtonDown("Secondary Click"))
             {
                 // Check for self as parent of click
                 while (obj != null)

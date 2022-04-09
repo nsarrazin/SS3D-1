@@ -57,7 +57,7 @@ namespace SS3D.Engine.Interactions
                 }
 
             }
-            else if (Input.GetButtonDown("Secondary Click"))
+            else if (Input.GetButtonDown("Secondary Click") && !Input.GetButton("Examine"))
             {
                 if (activeMenu != null)
                 {
@@ -67,7 +67,7 @@ namespace SS3D.Engine.Interactions
                 if (Input.GetButton("Alternate"))
                 {
                     Hands hands = GetComponent<Hands>();
-                    if (hands != null )
+                    if (hands != null)
                     {
                         Item item = hands.ItemInHand;
                         if (item != null)
@@ -102,7 +102,7 @@ namespace SS3D.Engine.Interactions
             {
                 // Activate item in selected hand
                 Hands hands = GetComponent<Hands>();
-                if (hands != null )
+                if (hands != null)
                 {
                     Item item = hands.ItemInHand;
                     if (item != null)
@@ -166,7 +166,7 @@ namespace SS3D.Engine.Interactions
             List<IInteractionTarget> targets = GetTargetsFromGameObject(source, target);
             InteractionEvent interactionEvent = new InteractionEvent(source, null);
             List<InteractionEntry> entries = GetInteractionsFromTargets(source, targets, interactionEvent);
-            
+
             // TODO: Validate access to inventory
 
             // Check for valid interaction index
@@ -175,7 +175,7 @@ namespace SS3D.Engine.Interactions
                 Debug.LogError($"Inventory interaction with invalid index {index}", target);
                 return;
             }
-            
+
             var chosenEntry = entries[index];
             interactionEvent.Target = chosenEntry.Target;
 
@@ -184,7 +184,7 @@ namespace SS3D.Engine.Interactions
                 Debug.LogError($"Interaction at index {index} did not have the expected name of {name}", target);
                 return;
             }
-            
+
             InteractionReference reference = interactionEvent.Source.Interact(interactionEvent, chosenEntry.Interaction);
             if (chosenEntry.Interaction.CreateClient(interactionEvent) != null)
             {
@@ -199,15 +199,15 @@ namespace SS3D.Engine.Interactions
             List<IInteractionTarget> targets = GetTargetsFromGameObject(source, target);
             InteractionEvent interactionEvent = new InteractionEvent(source, null);
             List<InteractionEntry> entries = GetInteractionsFromTargets(source, targets, interactionEvent);
-            
+
             var chosenInteraction = entries[index];
             interactionEvent.Target = chosenInteraction.Target;
-            
+
             if (chosenInteraction.Interaction.GetName(interactionEvent) != name)
             {
                 return;
             }
-            
+
             interactionEvent.Source.ClientInteract(interactionEvent, chosenInteraction.Interaction, new InteractionReference(referenceId));
         }
 
@@ -251,7 +251,7 @@ namespace SS3D.Engine.Interactions
             {
                 RpcExecuteClientInteraction(ray, index, name, reference.Id);
             }
-            
+
             // TODO: Keep track of interactions for cancellation
         }
 
@@ -269,12 +269,12 @@ namespace SS3D.Engine.Interactions
             }
             var chosenInteraction = viableInteractions[index];
             interactionEvent.Target = chosenInteraction.Target;
-            
+
             if (chosenInteraction.Interaction.GetName(interactionEvent) != name)
             {
                 return;
             }
-            
+
             interactionEvent.Source.ClientInteract(interactionEvent, chosenInteraction.Interaction, new InteractionReference(referenceId));
         }
 
@@ -293,7 +293,7 @@ namespace SS3D.Engine.Interactions
                 interactionEvent = null;
                 return new List<InteractionEntry>();
             }
-            
+
             List<IInteractionTarget> targets = new List<IInteractionTarget>();
             // Raycast to find target game object
             Vector3 point = Vector3.zero;
@@ -303,7 +303,7 @@ namespace SS3D.Engine.Interactions
                 GameObject targetGo = hit.transform.gameObject;
                 targets = GetTargetsFromGameObject(source, targetGo);
             }
-            
+
             interactionEvent = new InteractionEvent(source, targets[0], point);
 
             return GetInteractionsFromTargets(source, targets, interactionEvent);
@@ -340,14 +340,14 @@ namespace SS3D.Engine.Interactions
             List<IInteractionTarget> targets, InteractionEvent @event)
         {
             // Generate interactions on targets
-            List<InteractionEntry> interactions = targets.SelectMany(t => 
+            List<InteractionEntry> interactions = targets.SelectMany(t =>
                 t.GenerateInteractionsFromTarget(new InteractionEvent(source, t, @event.Point))
                     .Select(i => new InteractionEntry(t, i))
             ).ToList();
-            
+
             // Allow the source to add its own interactions
             source.GenerateInteractionsFromSource(targets.ToArray(), interactions);
-            
+
             // Filter interactions to possible ones
             return interactions.Where(i => i.Interaction.CanInteract(new InteractionEvent(source, i.Target, @event.Point))).ToList();
         }
@@ -358,7 +358,7 @@ namespace SS3D.Engine.Interactions
             IInteractionSource activeTool = toolHolder?.GetActiveTool();
             return activeTool ?? GetComponent<IInteractionSource>();
         }
-        
+
         private UI.RadialInteractionMenuUI activeMenu = null;
     }
 }

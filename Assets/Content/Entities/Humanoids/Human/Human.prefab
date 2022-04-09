@@ -90,6 +90,7 @@ GameObject:
   - component: {fileID: -8569418428762442770}
   - component: {fileID: 280135170638016455}
   - component: {fileID: 7985328355681489701}
+  - component: {fileID: 1443212983433956746}
   m_Layer: 0
   m_Name: Human
   m_TagString: Untagged
@@ -566,6 +567,23 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8d4b90a59a774591b9e883c310c3935a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &1443212983433956746
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 289348138277843802}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 61b3565a79138b98a9b21ce86b77b206, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  syncMode: 0
+  syncInterval: 0.1
+  isAiming: 0
+  rotationSpeed: 25
+  PointAts: []
 --- !u!1 &290878266594310021
 GameObject:
   m_ObjectHideFlags: 0
