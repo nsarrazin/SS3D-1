@@ -10,7 +10,7 @@ namespace SS3D.Content.Systems.Player
         public bool isAiming = false;
         [SyncVar] public float rotationSpeed = 25f;
 
-        [SerializeField] PointAt[] PointAts;
+        // [SerializeField] PointAt[] PointAts;
         // Start is called before the first frame update
         void Start()
         {
